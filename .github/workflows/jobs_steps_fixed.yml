@@ -20,7 +20,7 @@ jobs:
           echo "✅ Archivo config.txt creado"
           ls -la
       
-      # 🆕 GUARDAR el archivo como artifact
+      # GUARDAR el archivo como artifact
       - name: Guardar archivo para siguiente job
         uses: actions/upload-artifact@v4
         with:
@@ -44,7 +44,7 @@ jobs:
     needs: preparacion
     
     steps:
-      # 🆕 DESCARGAR el artifact del job anterior
+      # DESCARGAR el artifact del job anterior
       - name: Descargar archivo de configuración
         uses: actions/download-artifact@v4
         with:
