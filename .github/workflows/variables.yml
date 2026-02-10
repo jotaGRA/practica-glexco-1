@@ -1,0 +1,158 @@
+name: 🎓 Clase - Contextos y Variables Básicas
+
+on:
+  workflow_dispatch:  # Solo ejecución manual para la clase
+
+jobs:
+  entender-contextos:
+    name: 📚 Entender Contextos
+    runs-on: ubuntu-latest
+    
+    steps:
+      # Paso 1: Contexto GITHUB (información del repositorio)
+      - name: Mostrar contexto GitHub
+        run: |
+          echo "=== CONTEXTO GITHUB ==="
+          echo "Repositorio: ${{ github.repository }}"
+          echo "Usuario actual: ${{ github.actor }}"
+          echo "SHA del commit: ${GITHUB_SHA:0:8}"  # Primeros 8 caracteres
+          echo "Rama: ${{ github.ref_name }}"
+      
+      # Paso 2: Contexto RUNNER (información de la máquina)
+      - name: Mostrar contexto del Runner
+        run: |
+          echo ""
+          echo "=== CONTEXTO RUNNER ==="
+          echo "Sistema operativo: ${{ runner.os }}"
+          echo "Directorio de trabajo: $(pwd)"
+          echo "Arquitectura: ${{ runner.arch }}"
+      
+      # Paso 3: Contexto JOB (información del trabajo actual)
+      - name: Mostrar contexto del Job
+        run: |
+          echo ""
+          echo "=== CONTEXTO JOB ==="
+          echo "Nombre del job: ${{ job.name }}"
+          echo "Status: ${{ job.status }}"
+      
+      # Paso 4: Variables de entorno del sistema
+      - name: Mostrar variables del sistema
+        run: |
+          echo ""
+          echo "=== VARIABLES DEL SISTEMA ==="
+          echo "PATH: ${PATH:0:50}..."  # Mostrar solo parte del PATH
+          echo "HOME: $HOME"
+          echo "USER: $USER"
+
+  usar-variables:
+    name: 🔧 Usar Variables
+    runs-on: ubuntu-latest
+    
+    # Variables a nivel de JOB (solo disponibles en este job)
+    env:
+      CURSO: "GitHub Actions"
+      INSTRUCTOR: "Profesor"
+      VERSION: "1.0"
+    
+    steps:
+      # Paso 1: Variables definidas en el job (env)
+      - name: Usar variables del job
+        run: |
+          echo "=== VARIABLES DEL JOB ==="
+          echo "Curso: $CURSO"
+          echo "Instructor: $INSTRUCTOR"
+          echo "Versión: $VERSION"
+          
+          # También se pueden usar con la sintaxis ${{ env.VARIABLE }}
+          echo "Curso (otra forma): ${{ env.CURSO }}"
+      
+      # Paso 2: Variable específica de este paso
+      - name: Variable específica del paso
+        env:
+          MI_VARIABLE: "Este valor solo existe en este paso"
+        run: |
+          echo ""
+          echo "=== VARIABLE ESPECÍFICA ==="
+          echo "$MI_VARIABLE"
+      
+      # Paso 3: Crear variable durante la ejecución
+      - name: Crear variable durante ejecución
+        id: crear-var
+        run: |
+          # Forma antigua (todavía funciona)
+          echo "::set-output name=saludo::Hola estudiantes"
+          
+          # Forma nueva (recomendada)
+          echo "fecha=$(date)" >> $GITHUB_OUTPUT
+          
+          # También podemos usar variables de entorno normales
+          export NUEVA_VAR="variable creada en runtime"
+          echo "NUEVA_VAR=$NUEVA_VAR" >> $GITHUB_ENV
+      
+      # Paso 4: Usar las variables creadas
+      - name: Usar variables creadas
+        run: |
+          echo ""
+          echo "=== VARIABLES CREADAS ==="
+          echo "Saludo: ${{ steps.crear-var.outputs.saludo }}"
+          echo "Fecha: ${{ steps.crear-var.outputs.fecha }}"
+          echo "Nueva variable: $NUEVA_VAR"
+      
+      # Paso 5: Secrets (información sensible)
+      - name: Usar secrets de forma segura
+        env:
+          TOKEN_EJEMPLO: ${{ secrets.TOKEN_EJEMPLO }}
+        run: |
+          echo ""
+          echo "=== SECRETS ==="
+          echo "Longitud del token: ${#TOKEN_EJEMPLO} caracteres"
+          # Los secrets NO se muestran en los logs por seguridad
+          # echo "Token: $TOKEN_EJEMPLO"  # ¡NO HACER ESTO!
+
+  practica-integrada:
+    name: 🧩 Práctica Integrada
+    runs-on: ubuntu-latest
+    needs: [entender-contextos, usar-variables]
+    
+    # Variables que pueden cambiar según condiciones
+    env:
+      AMBIENTE: ${{ github.ref_name == 'main' && 'produccion' || 'desarrollo' }}
+    
+    steps:
+      # Paso 1: Combinar contextos
+      - name: Combinar información
+        run: |
+          echo "=== RESUMEN INTEGRADO ==="
+          echo ""
+          echo "📋 INFORMACIÓN DEL ENTORNO:"
+          echo "  Repositorio: ${{ github.repository }}"
+          echo "  Runner: ${{ runner.os }} (${{ runner.arch }})"
+          echo "  Ambiente: ${{ env.AMBIENTE }}"
+          echo ""
+          
+          # Ejemplo de lógica condicional con variables
+          if [[ "${{ env.AMBIENTE }}" == "produccion" ]]; then
+            echo "⚠️  ¡Cuidado! Estás en producción"
+          else
+            echo "🛠️  Estás en desarrollo, puedes experimentar"
+          fi
+      
+      # Paso 2: Crear archivo con información del contexto
+      - name: Crear reporte
+        run: |
+          echo "Reporte de ejecución" > reporte.txt
+          echo "=====================" >> reporte.txt
+          echo "Fecha: $(date)" >> reporte.txt
+          echo "Repositorio: ${{ github.repository }}" >> reporte.txt
+          echo "Ejecutado por: ${{ github.actor }}" >> reporte.txt
+          echo "Runner: ${{ runner.os }}" >> reporte.txt
+          
+          echo "✅ Reporte creado:"
+          cat reporte.txt
+      
+      # Paso 3: Guardar como artifact para descargar
+      - name: Guardar reporte
+        uses: actions/upload-artifact@v3
+        with:
+          name: reporte-ejecucion
+          path: reporte.txt
