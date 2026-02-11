@@ -13,6 +13,7 @@ jobs:
       - name: Mostrar contexto GitHub
         run: |
           echo "=== CONTEXTO GITHUB ==="
+          echo "mi variable de glexo: ${{ vars.VARIABLE_DE_PRUEBA }}"
           echo "mi variable: ${{ vars.MI_VARIABLE }}"
           echo "mi secret: ${{ secrets.MI_SECRET }}"
           echo "Repositorio: ${{ github.repository }}"
