@@ -1,4 +1,4 @@
-name: 🎓 Clase - Contextos y Variables Básicas
+name: Contextos y Variables
 
 on:
   workflow_dispatch:  # Solo ejecución manual para la clase
@@ -13,7 +13,7 @@ jobs:
       - name: Mostrar contexto GitHub
         run: |
           echo "=== CONTEXTO GITHUB ==="
-          echo "mi variable: ${{ env.MI_VARIABLE }}"
+          echo "mi variable: ${{ vars.MI_VARIABLE }}"
           echo "Repositorio: ${{ github.repository }}"
           echo "Usuario actual: ${{ github.actor }}"
           echo "SHA del commit: ${GITHUB_SHA:0:8}"  # Primeros 8 caracteres
