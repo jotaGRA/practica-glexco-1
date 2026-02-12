@@ -48,7 +48,6 @@ jobs:
           echo "prueba=prueba34" >> $GITHUB_OUTPUT
 
 
-
       # Compara el diff contra las rutas definidas y escribe "true"/"false" en cada output
       - uses: dorny/paths-filter@v3
         id: filter
@@ -74,8 +73,8 @@ jobs:
         run: echo "Instalando paquetes de backend..."
       - name: Ejecutar pruebas de backend
         run: echo "Corriendo tests de backend..."
-      - name: Usar output del step anterior
-        run: echo "El valor de prueba es ${{ steps.mi-step-prueba.outputs.prueba }}"
+      - name: Usar output del job detect-changes
+        run: echo "El valor de prueba es ${{ needs.detect-changes.outputs.prueba }}"
 
   # Solo corre si hubo cambios en src/frontend/**
   test-frontend:
