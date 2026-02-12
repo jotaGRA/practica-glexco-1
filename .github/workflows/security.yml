@@ -1,4 +1,4 @@
-name: 🛡️ Despliegue Seguro por Entornos
+name: clase 2 - security
 
 on:
   push:

@@ -1,7 +1,11 @@
+# Workflow que solo ejecuta tests según qué rutas del repo cambiaron.
+# Usa path filters a nivel de evento y detección fina con dorny/paths-filter.
+
 name: Clase 2 - path filters and types OPENED
 
 on:
   # Trigger 1: Pull Request
+  # Solo se dispara cuando se abre un PR que toca estas rutas
   pull_request:
     types: [opened]
     paths:
@@ -10,6 +14,7 @@ on:
       - 'tests/**'
 
   # Trigger 2: Push directo a ramas principales
+  # Solo se dispara en push a main/develop/release/* que toquen estas rutas
   push:
     branches:
       - main
@@ -21,20 +26,26 @@ on:
       - 'tests/**'
 
 jobs:
+  # Job que detecta qué conjuntos de rutas cambiaron (backend, frontend, tests).
+  # Sus outputs los usan los jobs de test para decidir si se ejecutan o no.
   detect-changes:
     runs-on: ubuntu-latest
+    # Exponer los resultados del step "filter" para que otros jobs los lean con needs.detect-changes.outputs.*
     outputs:
       backend: ${{ steps.filter.outputs.backend }}
       frontend: ${{ steps.filter.outputs.frontend }}
       tests: ${{ steps.filter.outputs.tests }}
     steps:
+      # Necesario para que paths-filter pueda comparar con el commit anterior
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
+      # Compara el diff contra las rutas definidas y escribe "true"/"false" en cada output
       - uses: dorny/paths-filter@v3
         id: filter
         with:
+          # En push: comparar con commit anterior. En PR: comparar con la base del PR
           base: ${{ github.event_name == 'push' && github.event.before || github.base_ref }}
           filters: |
             backend:
@@ -44,6 +55,7 @@ jobs:
             tests:
               - 'tests/**'
 
+  # Solo corre si hubo cambios en src/backend/**
   test-backend:
     needs: detect-changes
     if: ${{ needs.detect-changes.outputs.backend == 'true' }}
@@ -55,6 +67,7 @@ jobs:
       - name: Ejecutar pruebas de backend
         run: echo "Corriendo tests de backend..."
 
+  # Solo corre si hubo cambios en src/frontend/**
   test-frontend:
     needs: detect-changes
     if: ${{ needs.detect-changes.outputs.frontend == 'true' }}
@@ -66,6 +79,7 @@ jobs:
       - name: Ejecutar pruebas de frontend
         run: echo "Corriendo tests de frontend..."
 
+  # Solo corre si hubo cambios en tests/**
   test-unit:
     needs: detect-changes
     if: ${{ needs.detect-changes.outputs.tests == 'true' }}
