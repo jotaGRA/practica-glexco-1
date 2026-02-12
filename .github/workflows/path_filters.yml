@@ -75,12 +75,12 @@ jobs:
 
       - name: Instalar dependencias backend
         run: echo "Instalando paquetes de backend..."
-        
+
       - name: Ejecutar pruebas de backend
         run: echo "Corriendo tests de backend..."
 
       - name: Usar output del job detect-changes
-        run: echo "El valor de prueba es ${{ needs.detect-changes.outputs.prueba }}"
+        run: echo "El valor de prueba es ${{ needs.detect-changes.outputs.glexo }}"
 
   # Solo corre si hubo cambios en src/frontend/**
   test-frontend:
