@@ -35,11 +35,15 @@ jobs:
       backend: ${{ steps.filter.outputs.backend }}
       frontend: ${{ steps.filter.outputs.frontend }}
       tests: ${{ steps.filter.outputs.tests }}
+      prueba: ${{ steps.mi-step-prueba.outputs.prueba }}
     steps:
       # Necesario para que paths-filter pueda comparar con el commit anterior
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
+
+      - name: Usar output del step anterior
+        run: echo "El valor de prueba es ${{ steps.mi-step-prueba.outputs.prueba }}"
 
       # Compara el diff contra las rutas definidas y escribe "true"/"false" en cada output
       - uses: dorny/paths-filter@v3
@@ -66,6 +70,8 @@ jobs:
         run: echo "Instalando paquetes de backend..."
       - name: Ejecutar pruebas de backend
         run: echo "Corriendo tests de backend..."
+      - name: Mostrar prueba
+        run: echo "prueba=prueba"
 
   # Solo corre si hubo cambios en src/frontend/**
   test-frontend:
