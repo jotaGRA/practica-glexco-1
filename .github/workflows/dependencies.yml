@@ -96,7 +96,7 @@ jobs:
   # 7. JOB DE LIMPIEZA - Se ejecuta SIEMPRE, incluso si falla algo
   # -----------------------------------------------------------------
   cleanup:
-    needs: [deploy-staging, deploy-production]   # Espera a ambos (aunque uno no se ejecute)
+    needs: deploy-staging   # Espera a ambos (aunque uno no se ejecute)
     if: always()                                 # Se ejecuta pase lo que pase
     runs-on: ubuntu-latest
     steps:
