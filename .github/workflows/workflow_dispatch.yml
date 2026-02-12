@@ -45,16 +45,6 @@ on:
         required: false
         default: true
         type: boolean
-      prueba:
-        description: '🔄 Prueba'
-        required: false
-        default: true
-        type: boolean
-      test2:
-        description: 'test2'
-        required: false
-        default: true
-        type: text
 
 # Variables de entorno globales
 env:
